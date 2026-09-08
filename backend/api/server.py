@@ -5,9 +5,7 @@ from authlib.integrations.starlette_client import OAuth
 from fastapi.responses import RedirectResponse
 from fastapi import Request
 from starlette.middleware.sessions import SessionMiddleware
-
-env_path = Path(__file__).resolve().parent / ".env"
-load_dotenv(dotenv_path=env_path)
+load_dotenv()
 
 
 
@@ -35,7 +33,7 @@ app = FastAPI(title="Policy-AI API")
 
 app.add_middleware(
     SessionMiddleware,
-    secret_key="super-secret-key"
+    secret_key=os.getenv("SESSION_SECRET")
 )
 
 oauth = OAuth()
@@ -305,7 +303,7 @@ def health_check():
 
 @app.get("/auth/google")
 async def login(request: Request):
-    redirect_uri = "http://127.0.0.1:8000/auth/google/callback"
+    redirect_uri = f"{os.getenv('BACKEND_URL')}/auth/google/callback"
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
@@ -328,7 +326,7 @@ async def auth_callback(request: Request):
         pass
 
     return RedirectResponse(
-        url=f"http://localhost:5173?email={email}&name={name}"
+        url=f"{os.getenv('FRONTEND_URL')}?email={email}&name={name}"
     )
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -38,6 +38,10 @@ class MongoClientWrapper:
     @property
     def enabled(self) -> bool:
         return self._db is not None
+    
+    @property
+    def db(self):
+        return self._db
 
     def store_document(
         self,
